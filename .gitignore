@@ -1,4 +1,6 @@
+*.txt
 .classpath
 .project
 .metadata/
 .settings/
+target/
