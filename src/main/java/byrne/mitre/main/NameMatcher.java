@@ -1,6 +1,7 @@
 package byrne.mitre.main;
 
 import byrne.mitre.NGramAnalyzer;
+import byrne.mitre.NameEntry;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -8,6 +9,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
+import java.text.DecimalFormat;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
@@ -30,34 +32,31 @@ public class NameMatcher {
   public static void main(String[] args) {
 
     try {
-    	
+
       long startTime = System.currentTimeMillis();
     
       System.out.println("Loading Index...");
       Analyzer analyzer = new NGramAnalyzer(3,3);
+
       Directory index = new RAMDirectory();
       IndexWriter writer = new IndexWriter(index, analyzer, true, IndexWriter.MaxFieldLength.UNLIMITED);
       loadIndex("index.txt", writer);
       writer.close();
 
-      System.out.println("Performing trigram comparison...");
+      System.out.println("Running queries...");
       BufferedReader bufferedReader = new BufferedReader(new FileReader("queries.txt"));
       BufferedWriter out = new BufferedWriter(new FileWriter("results.txt"));
-      int hitsPerPage = 500;
+      final int hitsPerPage = 500;
       IndexSearcher searcher = new IndexSearcher(index, true);
       String line = null;
-      
+      DecimalFormat df = new DecimalFormat("#.00");
       
 	  while ((line = bufferedReader.readLine()) != null) {
 		  
-		  String[] vals = line.split("\\|");
-		  if (vals[1].equals("FNU")) {
-			  vals[1] = "";
-		  }
-		  String name = vals[1]+" "+vals[2];
-		  
-	      TokenStream tokenStream = analyzer.tokenStream("ngrams", new StringReader(name));
-	      
+		  NameEntry entry = new NameEntry(line);
+		 
+	      TokenStream tokenStream = analyzer.tokenStream("ngrams", new StringReader(entry.getFullName()));
+	     
 	      BooleanQuery bq = new BooleanQuery();
 	      while (tokenStream.incrementToken()) {
 	    	  Term t = new Term("ngrams",tokenStream.getAttribute(TermAttribute.class).term());
@@ -69,9 +68,11 @@ public class NameMatcher {
 	      ScoreDoc[] hits = collector.topDocs().scoreDocs;
 
 	      for(int i=0;i<hits.length;++i) {
-	        int docId = hits[i].doc;
+	    	
+            int docId = hits[i].doc;
 	        Document d = searcher.doc(docId);
-	        out.write(vals[0]+"|"+d.get("id")+"|"+(500-i)/501.0+"\n");
+	        //System.out.println(entry.getFullName() + " == " + d.get("name") + ": " + hits[i].score);
+	        out.write(entry.getID()+"|"+d.get("id")+"|"+df.format(hits[i].score)+"\n");
 	      }
 		  
 	  }
@@ -97,16 +98,12 @@ public class NameMatcher {
 	  
 	  while ((line = bufferedReader.readLine()) != null) {
 		  
-		  String[] vals = line.split("\\|");
-		  if (vals[1].equals("FNU")) {
-			  vals[1] = "";
-		  }
-		  String name = vals[1]+" "+vals[2];
+		  NameEntry entry = new NameEntry(line);
 		  
 		  Document doc = new Document();
-		  doc.add(new Field("id", vals[0], Field.Store.YES, Field.Index.NOT_ANALYZED));
-		  doc.add(new Field("name", name, Field.Store.NO, Field.Index.NOT_ANALYZED));
-		  doc.add(new Field("ngrams", new StringReader(name),Field.TermVector.YES));
+		  doc.add(new Field("id", entry.getID(), Field.Store.YES, Field.Index.NOT_ANALYZED));
+		  doc.add(new Field("name", entry.getFullName(), Field.Store.YES, Field.Index.NOT_ANALYZED));
+		  doc.add(new Field("ngrams", new StringReader(entry.getFullName()),Field.TermVector.YES));
 		  writer.addDocument(doc);
 		  
 	  }

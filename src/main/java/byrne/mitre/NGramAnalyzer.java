@@ -7,7 +7,7 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.ngram.NGramTokenizer;
 
 public class NGramAnalyzer extends Analyzer {
-
+	
   private int minGram;
   private int maxGram;
   
@@ -18,6 +18,6 @@ public class NGramAnalyzer extends Analyzer {
   
   @Override
   public TokenStream tokenStream(String fieldName, Reader reader) {
-    return new NGramTokenizer(reader, minGram, maxGram);
+	  return new NGramTokenizer(reader, minGram, maxGram);
   }
 }
