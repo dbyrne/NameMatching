@@ -36,7 +36,7 @@ public class NameMatcher {
       long startTime = System.currentTimeMillis();
     
       System.out.println("Loading Index...");
-      Analyzer analyzer = new NGramAnalyzer(3,3);
+      Analyzer analyzer = new NGramAnalyzer(2,4);
 
       Directory index = new RAMDirectory();
       IndexWriter writer = new IndexWriter(index, analyzer, true, IndexWriter.MaxFieldLength.UNLIMITED);
