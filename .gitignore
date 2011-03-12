@@ -1,4 +1,6 @@
-*.txt
+queries.txt
+results.txt
+index.txt
 .classpath
 .project
 .metadata/

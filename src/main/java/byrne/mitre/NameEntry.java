@@ -11,12 +11,8 @@ public class NameEntry {
                          vals[1] = "";
                  }
                  id = vals[0];
-                 fullName = " " + vals[1] + " " + vals[2] + " ";
-                 fullName = fullName.replaceAll("-", " ");
-                 fullName = fullName.replaceAll("'", "");
-                 fullName = fullName.replaceAll("\\.", "");
-                 fullName = fullName.replaceAll("\\,", "");
-                 fullName = fullName.replaceAll(" ", "*");
+                 fullName = vals[1] + " " + vals[2];
+
          }
 
          public String getFullName() {

@@ -1,5 +1,21 @@
 package byrne.mitre.main;
 
+/**
+ * Copyright 2011 David Byrne
+ *    
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 import byrne.mitre.MitreQuery;
 import byrne.mitre.NGramAnalyzer;
 import byrne.mitre.NameEntry;
@@ -29,8 +45,7 @@ public class NameMatcher {
         try {
 
             long startTime = System.currentTimeMillis();
-            final int N_THREADS = Runtime.getRuntime().availableProcessors();
-            System.out.println("Total threads: " + N_THREADS);
+
             System.out.println("Loading Index...");
             final Analyzer analyzer = new NGramAnalyzer(2,4);
 
@@ -48,7 +63,10 @@ public class NameMatcher {
                 new BufferedWriter(new FileWriter("results.txt"));
             
             final IndexSearcher searcher = new IndexSearcher(index, true);
-            String line = null;            
+            String line = null;  
+            
+            final int N_THREADS = Runtime.getRuntime().availableProcessors();
+            System.out.println("Total threads: " + N_THREADS);
             
             final ExecutorService executor = Executors.newFixedThreadPool(N_THREADS);
 
